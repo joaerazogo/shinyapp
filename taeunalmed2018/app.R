@@ -31,26 +31,45 @@ ui <- dashboardPage(
     tabItems(
       
       tabItem(tabName = "dashboard",
-              h2("Dashboard tab content"),
-                  textInput("textAge", h3("Ingrese la edad:")),
-                  textInput("textMunicipality", h3("Ingrese el municipio:")),
-                  selectInput("state", h2("Choose a state:"),
-                          list('East Coast' = c("NY", "NJ", "CT"),
-                               'West Coast' = c("WA", "OR", "CA"),
-                               'Midwest' = c("MN", "WI", "IA"))
+              h2("Parámetros para hallar el resultado de la predicción de la satisfacción de una madre soltera"),
+                  numericInput("textAge", h3("Ingrese la edad de la madre soltera:"),  0, min = 15, max = 100),
+                  numericInput("textAgeMunicipality", h3("Ingrese el número de años que ha vivido la madre soltera en un municipio:"),  1, min = 1, max = 100),
+                  textInput("textMunicipality", h3("Ingrese el municipio de nacimiento:")),
+                  selectInput("textReasonForDisplacement", h3("Ingrese el número que indica la razón del desplazamiento:"),
+                          list('Razón de desplazamiento' = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
                   ),
-                  textOutput("result"),
-                  textInput("textLevelSecurity", h3("Salud:")),
-                  textInput("textWork", h3("Nivel de seguridad:")),
-                  textInput("textLevelHappy", h3("Trabajo:")),
-                  textInput("textLive", h3("Nivel de felicidad:")),
-                  textInput("textEconomicHome", h3("vale vivir:")),
-                  textInput("textEnterEconomic", h3("Hogares completos:")),
-                  textInput("textTranquility", h3("Ingreso económico:")),
-                  textInput("textEconomicHome", h3("Nivel de tranquilidad:")),
-                  textInput("textEnterEconomic", h3("Municipio del desplazado:")),
-                  textInput("textTranquility", h3("Niños :")),
-                  textInput("textTranquility", h3("Padre del hogar :")),
+                  textOutput("resultReasonForDisplacement"),
+                  selectInput("textHealth", h3("Elija el nivel de satisfacción con los servicios de salud prestados:"),
+                              list('Nivel de satisfacción' = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+                  ),
+                  numericInput("textLevelSecurity", h3("Nivel de seguridad:"), 0, min = 0, max = 10),
+                  selectInput("textWork", h3("Nivel de satisfacción con el trabajo que poseen:"),
+                              list('Nivel satusfacción del trabajo' = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+                  ),
+                  selectInput("textLevelHappy", h3("Nivel de felicidad de la semana anterior:"),
+                              list('Nivel de felicidad' = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+                  ),
+                  selectInput("textLive", h3("Nivel de deseo de vivir por parte de la madre soltera:"),
+                              list('Nivel de de deseo de vivir' = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+                  ),
+                  selectInput("textCompletHome", h3("Elija el número de familias que viven en el hogar:"),
+                              list('Cantidad de familias' = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+                  ),
+                  selectInput("textEnterEconomic", h3("Nivel de sagtisfacción por el ingreso económico:"),
+                              list('Nivel de ingreso económico' = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+                  ),
+                  selectInput("textTranquility", h3("Elija el nivel de tranquilidad de la madre soltera:"),
+                              list('Nivel de tranquilidad' = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+                  ),
+                  selectInput("textDisplaced", h3("¿La madre soltera es desplazada?:"),
+                              list('Elija si o no si la madre soltera es desplazada' = c("si", "no"))
+                  ),
+                  selectInput("textBoys", h3("Elija el número de hijos en el hogar:"),
+                              list('Número de hijos' = c("si", "no"))
+                  ),
+                  selectInput("textFather", h3("¿Actualmente el padre de la madre soltera vive con ella? :"),
+                              list('Elija si wk padre de la madre soltera está vivo o muerto' = c("si", "no"))
+                  ),
                   tags$head(
                     tags$style
                     (
@@ -96,8 +115,8 @@ server <- function(input, output) {
     hist(rnorm(data), main = input$text)
   })
   
-  output$result <- renderText({
-    paste("You chose", input$state)
+  output$resultReasonForDisplacement <- renderText({
+    paste("You chose", input$textReasonForDisplacement)
   })
   
 }
