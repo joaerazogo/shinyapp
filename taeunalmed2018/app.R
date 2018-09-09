@@ -34,9 +34,9 @@ ui <- dashboardPage(
               h2("Parámetros para hallar el resultado de la predicción de la satisfacción de una madre soltera"),
                   numericInput("textAge", h3("Ingrese la edad de la madre soltera:"),  0, min = 15, max = 100),
                   numericInput("textAgeMunicipality", h3("Ingrese el número de años que ha vivido la madre soltera en un municipio:"),  1, min = 1, max = 100),
-                  textInput("textMunicipality", h3("Ingrese el municipio de nacimiento:")),
+                  # razón del desplazamiento
                   selectInput("textReasonForDisplacement", h3("Ingrese el número que indica la razón del desplazamiento:"),
-                          list('Razón de desplazamiento' = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+                              list('Razón de desplazamiento' = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
                   ),
                   textOutput("resultReasonForDisplacement"),
                   selectInput("textHealth", h3("Elija el nivel de satisfacción con los servicios de salud prestados:"),
@@ -119,6 +119,72 @@ server <- function(input, output) {
     paste("You chose", input$textReasonForDisplacement)
   })
   
+  #-------------------------------------------------------------------------------------------------------
+  ## llamado de la base de datos y c+alculo de la predicción 
+  
+  setwd("/home/jose/") ## esta es la posicion de la base de datos.txt
+  data<-read.csv("/home/jose/data.txt", header = TRUE, sep = " ")
+  
+  ## transformar variable
+  
+  data$satisfecho<-as.numeric(data$satisfecho)
+  y<-data$satisfecho+1
+  z<-y^2.414084
+  
+  ### convertir variables 
+  
+  data$edad<-as.numeric(data$edad)
+  data$desplazado_municipio<-as.factor(data$desplazado_municipio)
+  data$anios_viviendo_municipio<-as.numeric(data$anios_viviendo_municipio)
+  data$razon_desplazamiento<-as.factor(data$razon_desplazamiento)
+  data$padre_vive_hogar<-as.factor(data$padre_vive_hogar)
+  data$ingreso_economico<-as.numeric(data$ingreso_economico)
+  data$salud<-as.numeric(data$salud)
+  data$nivel_seguridad<-as.numeric(data$nivel_seguridad)
+  data$trabajo<-as.numeric(data$trabajo)
+  data$feliz<-as.numeric(data$feliz)
+  data$tranquilidad<-as.numeric(data$tranquilidad)
+  data$vale_vivir<-as.numeric(data$vale_vivir)
+  data$hogares_completos<-as.numeric(data$hogares_completos)
+  
+  ## BAckWARd (proceso hacia atras) 
+  
+  modback <- lm(z ~ edad + desplazado_municipio 
+                + anios_viviendo_municipio + razon_desplazamiento 
+                + padre_vive_hogar + ingreso_economico + salud 
+                + nivel_seguridad + trabajo + feliz + tranquilidad 
+                + vale_vivir + ninos + hogares_completos,
+                data = data)
+  
+  summary(modback)
+  
+  ## Prediccion formulas
+  
+  aux <-  output$resultReasonForDisplacement <- renderText({ 
+    input$textReasonForDisplacement
+  })
+  
+  p <- predict(object = modback,
+               newdata=data.frame(edad = aux,
+                                  anios_viviendo_municipio = aux,
+                                  razon_desplazamiento = aux, 
+                                  salud = aux, 
+                                  nivel_seguridad = aux, 
+                                  trabajo = aux, 
+                                  feliz = aux, 
+                                  vale_vivir = aux, 
+                                  hogares_completos = aux, 
+                                  ingreso_economico = aux,
+                                  tranquilidad = aux,
+                                  desplazado_municipio = aux,
+                                  ninos = aux, 
+                                  padre_vive_hogar = aux),
+               type = "response")
+  prediccion <- p^(1/2.414084) - 1
+  prediccion <-round(prediccion,0) - 1 ### revisar si es -1
+  prediccion
+  
+  #-------------------------------------------------------------------------------------------------------
 }
 
 # Run the application 
