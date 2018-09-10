@@ -5,8 +5,9 @@ account: taeunalmed2018
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 410125
-bundleId: 1576248
+bundleId: 1577902
 url: https://taeunalmed2018.shinyapps.io/taeun/
-when: 1536441137.09796
+when: 1536559334.90818
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: files/CaracteristicasYComposicionDelHogar.txt|files/data.txt

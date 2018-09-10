@@ -15,6 +15,8 @@ library(MASS)
 library(fBasics)    
 library(urca)
 library(TSA)
+library(networkD3)
+library(readr)
 
 
 ui <- dashboardPage(
@@ -33,38 +35,23 @@ ui <- dashboardPage(
       tabItem(tabName = "dashboard",
               h2("Parámetros para hallar el resultado de la predicción de la satisfacción de una madre soltera"),
               numericInput("textAge", h3("Ingrese la edad de la madre soltera:"),  0, min = 15, max = 100),
-              textOutput("resultTextAge"), 
               numericInput("textAgeMunicipality", h3("Ingrese el número de años que ha vivido la madre soltera en un municipio:"),  1, min = 1, max = 100),
-              textOutput("resultTextAgeMunicipality"),
-              # razón del desplazamiento
               selectInput("textReasonForDisplacement", h3("Ingrese el número que indica la razón del desplazamiento:"), list('Indique la razón de desplazamiento' = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10))),
-              textOutput("resultReasonForDisplacement"),
               numericInput("textHealth", h3("Elija el nivel de satisfacción con los servicios de salud prestados:"), 0, min = 0, max = 10),
-              textOutput("resultTextHealth"),
               numericInput("textLevelSecurity", h3("Nivel de seguridad:"), 0, min = 0, max = 10),
-              textOutput("resultTextLevelSecurity"),
               numericInput("textWork", h3("Nivel de satisfacción con el trabajo que poseen:"), 0, min = 0, max = 10),
-              textOutput("resultTextWork"),
               numericInput("textLevelHappy", h3("Nivel de felicidad de la semana anterior:"), 0, min = 0, max = 10),
-              textOutput("resultTextLevelHappy"),
               numericInput("textLive", h3("Nivel de deseo de vivir por parte de la madre soltera:"), 0, min = 0, max = 10),
-              textOutput("resultTextLive"),
               numericInput("textCompletHome", h3("Elija el número de familias que viven en el hogar:"), 0, min = 0, max = 10),
-              textOutput("resultTextCompletHome"),
               numericInput("textEnterEconomic", h3("Nivel de sagtisfacción por el ingreso económico:"), 0, min = 0, max = 10),
-              textOutput("resultTextEnterEconomic"),
               numericInput("textTranquility", h3("Elija el nivel de tranquilidad de la madre soltera:"), 0, min = 0, max = 10),
-              textOutput("resultTextTranquility"),
               selectInput("textDisplaced", h3("¿La madre soltera es desplazada?:"),
                           list('Elija si o no si la madre soltera es desplazada' = c(1, 2))
               ),
-              textOutput("resultTextDisplaced"),
               numericInput("textBoys", h3("Elija el número de hijos en el hogar:"), 0, min = 0, max = 10),
-              textOutput("resultTextBoys"),
               selectInput("textFather", h3("¿Actualmente el padre de la madre soltera vive con ella? :"),
                           list('Elija si wk padre de la madre soltera está vivo o muerto' = c(1, 2, 3))
               ),
-              textOutput("resultTextFather"),
               textOutput("resultPredicction"),
               tags$head(
                 tags$style
@@ -81,8 +68,8 @@ ui <- dashboardPage(
       
       tabItem(tabName = "Grafos",
               h2("Grafos"),
-                numericInput("textDocument", h3("Escriba el documento:"), 0, min = 0, max = 7000),
-                textOutput("resultTextDocument")
+              numericInput("textDocument", h3("Escriba el documento:"), 0, min = 0, max = 60000000),
+              textOutput("resultTextDocument")
       )
       
       
@@ -105,8 +92,8 @@ server <- function(input, output) {
       #-------------------------------------------------------------------------------------------------------
       ## llamado de la base de datos y c+alculo de la predicción 
       
-      setwd("/home/jose/") ## esta es la posicion de la base de datos.txt
-      data<-read.csv("/home/jose/data.txt", header = TRUE, sep = " ")
+      setwd("/home/jose/shinyapp/taeunalmed2018/files/") ## esta es la posicion de la base de datos.txt
+      data<-read.csv("/home/jose/shinyapp/taeunalmed2018/files/data.txt", header = TRUE, sep = " ")
       
       ## transformar variable
       
@@ -129,17 +116,6 @@ server <- function(input, output) {
       data$tranquilidad<-as.numeric(data$tranquilidad)
       data$vale_vivir<-as.numeric(data$vale_vivir)
       data$hogares_completos<-as.numeric(data$hogares_completos)
-      
-      ## BAckWARd (proceso hacia atras) 
-      
-      modback <- lm(z ~ edad + desplazado_municipio 
-                    + anios_viviendo_municipio + razon_desplazamiento 
-                    + padre_vive_hogar + ingreso_economico + salud 
-                    + nivel_seguridad + trabajo + feliz + tranquilidad 
-                    + vale_vivir + ninos + hogares_completos,
-                    data = data)
-      
-      summary(modback)
       
       ## Prediccion formula
       
@@ -167,14 +143,12 @@ server <- function(input, output) {
       paste("Result prediction", prediccion)
     })
   })
-  output$resultTextDocument <- renderSimpleNetwork({
-    library(networkD3)
-    library(readr)
-    setwd("/home/jose/")
-    Caractersticas <- read_csv("/home/jose/Características y composición del hogar.csv")
+  output$resultTextDocument <- renderForceNetwork({
+    setwd("/home/jose/shinyapp/taeunalmed2018/files/")
+    Caractersticas <- read.csv("/home/jose/shinyapp/taeunalmed2018/files/CaracteristicasYComposicionDelHogar.txt", header = TRUE, sep = ",")
     tabla <- Caractersticas[,c(1,4,9,11,12,20,21,23,24)]
     grafo <- data.frame(Source=numeric(1),Target=numeric(1))
-    familiaN <- which(tabla$DIRECTORIO == 6000008)
+    familiaN <- which(tabla$DIRECTORIO == input$textDocument)
     Flia <- tabla[familiaN,]
     aux <- which(Flia$P6071 == 1)
     relacion <- Flia[aux,]
