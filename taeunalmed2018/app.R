@@ -82,12 +82,6 @@ ui <- dashboardPage(
 server <- function(input, output) {
   
   observeEvent(input$run, {
-    output$resultTextAge <- renderText({
-      paste("You chose", input$textAge)
-    })
-    output$resultTextAgeMunicipality <- renderText({
-      paste("You chose", input$textAgeMunicipality)
-    })
     output$resultPredicction <- renderText({
       #-------------------------------------------------------------------------------------------------------
       ## llamado de la base de datos y c+alculo de la predicción 
@@ -140,7 +134,9 @@ server <- function(input, output) {
       prediccion
       
       #-------------------------------------------------------------------------------------------------------
-      paste("Result prediction", prediccion)
+      
+      paste("El nivel de satisfacción por parte de la madre soltera es de", prediccion, ", donde de [0, 3] es baja, de [4, 6] es media y [7, 10] es alta")  
+      
     })
   })
   output$resultTextDocument <- renderForceNetwork({
